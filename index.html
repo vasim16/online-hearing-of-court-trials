@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Online Court Hearing Portal</title>
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #536976, #292E49);
+    color: #eee;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+  header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  header h1 {
+    font-weight: 700;
+    font-size: 2.4rem;
+    color: #f0b90b;
+    margin: 0;
+  }
+  .login-container, .hearing-container, #dashboard-section {
+    background: #1f2739;
+    border-radius: 12px;
+    padding: 25px 30px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+    margin-bottom: 25px;
+  }
+  .login-container h2, .hearing-container h2, #dashboard-section h2 {
+    margin-top: 0;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #f0b90b;
+    text-align: center;
+  }
+  label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+  input[type="text"], input[type="password"], input[type="datetime-local"], select {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: none;
+    margin-bottom: 18px;
+    font-size: 1rem;
+    outline: none;
+  }
+  button {
+    width: 100%;
+    padding: 12px 0;
+    background: #f0b90b;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1f2739;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background: #d1a50a;
+  }
+  .status {
+    text-align: center;
+    font-weight: 700;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 15px;
+  }
+  .status.scheduled {
+    background-color: #34495e;
+    color: #f0b90b;
+  }
+  .status.inprogress {
+    background-color: #27ae60;
+    color: #fff;
+  }
+  .status.completed {
+    background-color: #7f8c8d;
+    color: #eee;
+  }
+  .join-btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-top: 20px;
+    background: #2980b9;
+    color: white;
+    padding: 12px 0;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.1rem;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+  }
+  .join-btn:hover {
+    background: #1b5f8a;
+  }
+  #dashboard-video {
+    width: 100%;
+    border-radius: 8px;
+    background: black;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  }
+  @media (max-width: 450px) {
+    body {
+      padding: 10px;
+    }
+    .login-container, .hearing-container, #dashboard-section {
+      padding: 20px 20px;
+    }
+  }
+</style>
+</head>
+<body>
+  <header>
+    <h1>Online Court Hearing Portal</h1>
+  </header>
+
+  <div class="login-container" id="login-section">
+    <h2>Login</h2>
+    <form id="loginForm" aria-label="Login form">
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" required autocomplete="username" />
+      
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" required autocomplete="current-password" />
+      
+      <button type="submit">Login</button>
+    </form>
+  </div>
+
+  <div class="hearing-container" id="hearing-section" style="display:none;">
+    <h2>Schedule Hearing</h2>
+    <form id="hearingForm" aria-label="Schedule hearing form">
+      <label for="caseNumber">Case Number</label>
+      <input type="text" id="caseNumber" name="caseNumber" required />
+
+      <label for="courtroom">Courtroom Number</label>
+      <input type="text" id="courtroom" name="courtroom" required />
+
+      <label for="hearingDateTime">Date & Time</label>
+      <input type="datetime-local" id="hearingDateTime" name="hearingDateTime" required />
+
+      <label for="judgeName">Judge Name</label>
+      <input type="text" id="judgeName" name="judgeName" required />
+
+      <label for="hearingStatus">Status</label>
+      <select id="hearingStatus" name="hearingStatus" required>
+        <option value="scheduled">Scheduled</option>
+        <option value="inprogress">In Progress</option>
+        <option value="completed">Completed</option>
+      </select>
+
+      <button type="submit">Save Hearing</button>
+    </form>
+
+    <div id="hearingDetails" style="display:none; margin-top: 25px; color: #eee;">
+      <h3>Hearing Details</h3>
+      <p><strong>Case Number:</strong> <span id="detailCaseNumber"></span></p>
+      <p><strong>Courtroom:</strong> <span id="detailCourtroom"></span></p>
+      <p><strong>Date & Time:</strong> <span id="detailDateTime"></span></p>
+      <p><strong>Judge:</strong> <span id="detailJudgeName"></span></p>
+      <p class="status" id="detailStatus"></p>
+      <button id="joinHearingBtn" class="join-btn" type="button">Join Hearing</button>
+    </div>
+  </div>
+
+  <div id="dashboard-section" style="display:none;">
+    <h2>Live Hearing Session</h2>
+    <video id="dashboard-video" controls autoplay muted loop>
+      <source src="court_animation.mp4" type="video/webm" />
+      Your browser does not support the video tag.
+    </video>
+    <p style="margin-top:15px; text-align:center; font-style: italic;">
+      This is a demo live session. In a real system, this would be a live court hearing.
+    </p>
+    <button id="exitDashboardBtn" style="background:#f0b90b; color:#1f2739; margin-top: 25px; font-weight:700; border-radius:10px; width: 100%; padding: 12px; cursor:pointer;">
+      Exit Hearing
+    </button>
+  </div>
+
+<script>
+  const loginForm = document.getElementById('loginForm');
+  const hearingSection = document.getElementById('hearing-section');
+  const loginSection = document.getElementById('login-section');
+
+  const hearingForm = document.getElementById('hearingForm');
+  const hearingDetails = document.getElementById('hearingDetails');
+  const detailCaseNumber = document.getElementById('detailCaseNumber');
+  const detailCourtroom = document.getElementById('detailCourtroom');
+  const detailDateTime = document.getElementById('detailDateTime');
+  const detailJudgeName = document.getElementById('detailJudgeName');
+  const detailStatus = document.getElementById('detailStatus');
+  const joinHearingBtn = document.getElementById('joinHearingBtn');
+
+  const dashboardSection = document.getElementById('dashboard-section');
+  const exitDashboardBtn = document.getElementById('exitDashboardBtn');
+
+
+  loginForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const username = loginForm.username.value.trim();
+    const password = loginForm.password.value.trim();
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z].*[a-z].*[a-z])(?=.*[!@#$%^&*])[A-Za-z0-9!@#$%^&*]{4,}$/;
+
+    if (emailRegex.test(username) && passwordRegex.test(password)) {
+         loginSection.style.display = 'none';
+         hearingSection.style.display = 'block';
+        } 
+    else {
+        alert('Invalid username or password');
+        }
+
+  });
+
+  
+  hearingForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const caseNumber = hearingForm.caseNumber.value.trim();
+    const courtroom = hearingForm.courtroom.value.trim();
+    const hearingDateTime = hearingForm.hearingDateTime.value;
+    const judgeName = hearingForm.judgeName.value.trim();
+    const status = hearingForm.hearingStatus.value;
+
+    detailCaseNumber.textContent = caseNumber;
+    detailCourtroom.textContent = courtroom;
+    detailDateTime.textContent = new Date(hearingDateTime).toLocaleString();
+    detailJudgeName.textContent = judgeName;
+
+    detailStatus.textContent = status.replace(/^\w/, c => c.toUpperCase());
+    detailStatus.className = 'status ' + status;
+
+    if(status === 'inprogress') {
+      joinHearingBtn.style.display = 'block';
+    } else {
+      joinHearingBtn.style.display = 'none';
+    }
+
+    hearingDetails.style.display = 'block';
+  });
+
+  
+  joinHearingBtn.addEventListener('click', () => {
+    hearingSection.style.display = 'none';
+    dashboardSection.style.display = 'block';
+  });
+
+  exitDashboardBtn.addEventListener('click', () => {
+    dashboardSection.style.display = 'none';
+    hearingSection.style.display = 'block';
+  });
+</script>
+</body>
+</html>
